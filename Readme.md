@@ -5,7 +5,7 @@ Det skal brukes mot mailing-API i Modulus Barn, som krever autentisering via Dig
 
 ## Systemkrav
 BarnevernSkann kan enten kjøres som skript eller bygges til et program. Begge deler krever Python 3.10 eller nyere.
-Følgende Python-pakker (med alle sine systemkrav) er nødvendige for å kjøre/kompilere koden
+Følgende Python-pakker (med alle sine systemkrav) er nødvendige for å kjøre/bygge koden
 - Requests (https://pypi.org/project/requests/)
 - PyJWT (https://pypi.org/project/PyJWT/)
 
@@ -76,11 +76,11 @@ Dette vil generere fire filer
 - Public key i JWK-format
 
 
-## Kompilering
-BarnevernSkann kompileres ved  kjøre koden i compile.py. Dette krever at verktøyet Pyinstaller er installert og konfigurert, 
-og alle de nødvendige Python-pakkene for å kjøre de forskjellige komponentene er installert.
-Kompileringen kan konfigureres ved å legge til flere eller fjerne alternativer fra koden i compile.py.
-Merk at Windows executable må kompileres på Windows og Linux executable må kompileres på Linux.
+## Bygging
+BarnevernSkann kan bygges til en executable ved  kjøre koden i compile.py. Dette krever at verktøyet Pyinstaller er 
+installert og konfigurert, og alle de nødvendige Python-pakkene for å kjøre de forskjellige komponentene er installert.
+Byggingen kan konfigureres ved å legge til flere eller fjerne alternativer fra koden i compile.py.
+Merk at Windows executable må bygges på Windows og Linux executable må bygges på Linux.
 
 
 ## Copyright
