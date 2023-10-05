@@ -15,7 +15,7 @@
 
 from jwcrypto import jwk
 
-key = jwk.JWK.generate(kty='RSA', size=2048, alg='RS256', use='sig', kid='BKModulusMigrering')
+key = jwk.JWK.generate(kty='RSA', size=2048, alg='RS256', use='sig', kid='Test')  # Insert your KID here
 public_key = key.export_public()
 private_key = key.export_private()
 public_pem = pem = key.export_to_pem(private_key=False, password=None)
