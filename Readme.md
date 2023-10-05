@@ -53,6 +53,10 @@ Navn på underkataloger skal matche enhetskode i Modulus Barn der dokumentet hø
 - _BK-FYBD-FYBV/_ - Bergen Kommune, Fana og Ytrebygda bydel, Fana og Ytrebygda Barnevernstjeneste.
 Finished, Failed og Logs vil bli opprettet automatisk ved første kjøring hvis de ikke eksisterer.
 
+Det er lagt opp til at brukernavnet på personen som skannet dokumentet skal ligge i de første 5 karakterene av filnavnet, 
+og sendes med til Modulus Barn, men dette kan endres i koden. Format kan også endres i koden.
+Hvis det ikke sendes med noe brukernavn, vil "Skannet av"-feltet i Modulus Barn settes til "Ukjent"
+
 Når BarnevernSkann er kjørt vil alle skannede dokumenter dukke opp i postlisten på enhet tilsvarende navn på katalogen dokumentet lå i.
 Ferdige dokumenter som er lastet opp vil bli flyttet til _Finished_.
 
