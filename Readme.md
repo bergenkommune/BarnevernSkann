@@ -1,5 +1,5 @@
 # BarnevernSkann
-BarnevernSkann er laget for å pushe skannede PDF-filer til fagsystemet Modulus Barn,levert av NetCompany.
+BarnevernSkann er laget for å pushe skannede PDF-filer til fagsystemet Modulus Barn, levert av NetCompany.
 Det skal brukes mot mailing-API i Modulus Barn, som krever autentisering via DigDir Maskinporten.
 
 
