@@ -24,7 +24,7 @@ Følgende felter finnes i konfigurasjonen
 - "workingDirectory": "_Sti til hovedkatalog der filer skal lastes opp fra_",
 - "privateKeyFile": "_Sti til privat nøkkel i PEM-format som brukes i Maskinporten-integrasjon_",
 - "maskinportenKid": "_KID i Maskinporten-integrasjon_",
-- "maskinportenUrl": "_URL til Maskinporten prod/test, eksempelvis https://ver2.maskinporten.no/_",
+- "maskinportenUrl": "_URL til Maskinporten prod/test, eksempelvis https://test.maskinporten.no/_",
 - "maskinportenScope": "_Maskinporten scope som kreves for å bruke API i Modulus Barn_",
 - "maskinportenIssuer": "_Maskinporten IntegrasjonsID_",
 - "modulusUrl": "_Modulus Barn URL, eksempelvis https://test.modulus-barn.no/_",
