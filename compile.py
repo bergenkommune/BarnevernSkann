@@ -17,7 +17,7 @@ import PyInstaller.__main__
 
 PyInstaller.__main__.run([
     'main.py',
-    '--name', 'BKModulusScan',
+    '--name', 'BarnevernSkann',
     '--onefile',
     '--clean',
     '--console'
@@ -25,7 +25,7 @@ PyInstaller.__main__.run([
 
 PyInstaller.__main__.run([
     'generatekey.py',
-    '--name', 'generatekey',
+    '--name', 'GenerateKey',
     '--onefile',
     '--clean',
     '--console'
