@@ -76,8 +76,7 @@ def maskinporttokenpostrequest():  # creates JWT and requests access token from 
                      headers={'content-type': 'application/x-www-form-urlencoded'},
                      data=('grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=' + str(token)))
     r.close()
-    print(r.json())
-    print(r.status_code)
+
     if r.status_code == 200:  # success, return answer
         return r.json()
     else:  # return response and json content as list for error handling
@@ -88,23 +87,19 @@ def apimoduluspostrequest(token, doc, district, fileName):  # push data to api w
     if userformatcheck(fileName[0:5]):  # if username fits Bergen format, change to whatever format you use
         request_body = {'title': 'Skannet ' + str(fileName), 'unit': district, 'note': 'Skannet dokument',
                        'scannedBy': fileName[0:5], 'documents': doc}
-        header = {'user-agent': 'BarnevernSkann/1.0.1', 'Accept': 'application/json',
+        header = {'user-agent': 'BarnevernSkann/1.0.2', 'Accept': 'application/json',
                   'Authorization': f'Bearer {token}'}
     else:  # else unknown user
         request_body = {'title': 'Skannet ' + str(fileName), 'unit': district, 'note': 'Skannet dokument',
                        'scannedBy': 'Ukjent', 'documents': doc}
-        header = {'user-agent': 'BarnevernSkann/1.0.1', 'Accept': 'application/json',
+        header = {'user-agent': 'BarnevernSkann/1.0.2', 'Accept': 'application/json',
                   'Authorization': f'Bearer {token}'}
 
     session = requests.Session()  # new requests session
 
-    print(header)
-
     r = session.post(str(config['modulusUrl']) + 'external-api/v1/mailing', headers=header, json=request_body,
                      allow_redirects=False)  # post request to Modulus api
     r.close()
-
-    print(r.text)
 
     if r.status_code == 204:  # response status code handling, api doesn't return json content if 204 success
         return {'code': '204'}
