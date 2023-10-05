@@ -1,0 +1,10 @@
+{
+  "workingDirectory": "C:/Skanning/Documents",
+  "privateKeyFile": "C:/Skanning/Keys/privatekey.pem",
+  "maskinportenKid": "BarnevernSkanning",
+  "maskinportenUrl": "https://test.maskinporten.no/",
+  "maskinportenScope": "test:create",
+  "maskinportenIssuer": "db3eb700-0300-aaf6-3bda-963d32c3a6cf",
+  "modulusUrl": "https://test.modulus-barn.no/",
+  "timeout": 60
+}

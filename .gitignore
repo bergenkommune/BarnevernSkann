@@ -1,0 +1,11 @@
+/keys/
+/private_key.jwk
+/private_key.pem
+/public_key.jwk
+/public_key.pem
+/build/
+/dist/
+
+config.json
+
+*.spec
