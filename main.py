@@ -87,12 +87,12 @@ def apimoduluspostrequest(token, doc, district, fileName):  # push data to api w
     if userformatcheck(fileName[0:5]):  # if username fits Bergen format, change to whatever format you use
         request_body = {'title': 'Skannet ' + str(fileName), 'unit': district, 'note': 'Skannet dokument',
                        'scannedBy': fileName[0:5], 'documents': doc}
-        header = {'user-agent': 'BarnevernSkann/1.0.2', 'Accept': 'application/json',
+        header = {'user-agent': 'BarnevernSkann/1.0.3', 'Accept': 'application/json',
                   'Authorization': f'Bearer {token}'}
     else:  # else unknown user
         request_body = {'title': 'Skannet ' + str(fileName), 'unit': district, 'note': 'Skannet dokument',
                        'scannedBy': 'Ukjent', 'documents': doc}
-        header = {'user-agent': 'BarnevernSkann/1.0.2', 'Accept': 'application/json',
+        header = {'user-agent': 'BarnevernSkann/1.0.3', 'Accept': 'application/json',
                   'Authorization': f'Bearer {token}'}
 
     session = requests.Session()  # new requests session
@@ -194,6 +194,6 @@ if __name__ == '__main__':
                             logger.write(datetime.strftime(currentTime, '%Y-%m-%d %H:%M:%S') +
                                          ' - ' + str(file.name) + ' failed with error: ' + str(e) + '\n')
 
-        logger.write(datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S') + ' - Uploads done!')
+        logger.write(datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S') + ' - Uploads done!\n')
         logger.close()
         sys.exit(0)
