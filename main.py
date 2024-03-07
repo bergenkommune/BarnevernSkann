@@ -45,7 +45,7 @@ def userformatcheck(userName):  # username format validator function
     return userName.isalnum() and not userName.isalpha() and not userName.isdigit()
 
 
-def maskinporttokenpostrequest():  # creates JWT and requests access token from Maskinporten
+def maskinporttokenpostrequest(logFile, timeStamp):  # creates JWT and requests access token from Maskinporten
     iat = datetime.now(tz=timezone.utc)
     exp = datetime.now(tz=timezone.utc) + timedelta(seconds=int(config['timeout']))
 
@@ -70,41 +70,51 @@ def maskinporttokenpostrequest():  # creates JWT and requests access token from 
 
     token = jwt.encode(payload=mportPayload, key=privateKey, algorithm='RS256', headers=mportHeader)  # make the JWT
 
-    session = requests.Session()  # new requests session
+    try:
+        session = requests.Session()  # new requests session
 
-    r = session.post(str(config['maskinportenUrl']) + 'token',  # post request to Maskinporten
-                     headers={'content-type': 'application/x-www-form-urlencoded'},
-                     data=('grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=' + str(token)))
-    r.close()
+        r = session.post(str(config['maskinportenUrl']) + 'token',  # post request to Maskinporten
+                         headers={'content-type': 'application/x-www-form-urlencoded'},
+                         data=('grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=' + str(token)))
+        r.close()
 
-    if r.status_code == 200:  # success, return answer
-        return r.json()
-    else:  # return response and json content as list for error handling
-        return [r.status_code, r.json()]
+        if r.status_code == 200:  # success, return answer
+            return r.json()
+        else:  # return response and json content as list for error handling
+            return [r.status_code, r.json()]
+
+    except Exception as error:
+        logFile.write(datetime.strftime(timeStamp, '%Y-%m-%d %H:%M:%S') + str(error))
+        sys.exit(-1)
 
 
-def apimoduluspostrequest(token, doc, district, fileName):  # push data to api with post-request
+def apimoduluspostrequest(token, doc, district, fileName, logFile, timeStamp):  # push data to api with post-request
     if userformatcheck(fileName[0:5]):  # if username fits Bergen format, change to whatever format you use
         request_body = {'title': 'Skannet ' + str(fileName), 'unit': district, 'note': 'Skannet dokument',
                        'scannedBy': fileName[0:5], 'documents': doc}
-        header = {'user-agent': 'BarnevernSkann/1.0.3', 'Accept': 'application/json',
+        header = {'user-agent': 'BarnevernSkann/1.0.4', 'Accept': 'application/json',
                   'Authorization': f'Bearer {token}'}
     else:  # else unknown user
         request_body = {'title': 'Skannet ' + str(fileName), 'unit': district, 'note': 'Skannet dokument',
                        'scannedBy': 'Ukjent', 'documents': doc}
-        header = {'user-agent': 'BarnevernSkann/1.0.3', 'Accept': 'application/json',
+        header = {'user-agent': 'BarnevernSkann/1.0.4', 'Accept': 'application/json',
                   'Authorization': f'Bearer {token}'}
 
-    session = requests.Session()  # new requests session
+    try:
+        session = requests.Session()  # new requests session
 
-    r = session.post(str(config['modulusUrl']) + 'external-api/v1/mailing', headers=header, json=request_body,
-                     allow_redirects=False)  # post request to Modulus api
-    r.close()
+        r = session.post(str(config['modulusUrl']) + 'external-api/v1/mailing', headers=header, json=request_body,
+                         allow_redirects=False)  # post request to Modulus api
+        r.close()
 
-    if r.status_code == 204:  # response status code handling, api doesn't return json content if 204 success
-        return {'code': '204'}
-    else:  # return response json content for error handling
-        return r.json()
+        if r.status_code == 204:  # response status code handling, api doesn't return json content if 204 success
+            return {'code': '204'}
+        else:  # return response json content for error handling
+            return r.json()
+
+    except Exception as error:
+        logFile.write(datetime.strftime(timeStamp, '%Y-%m-%d %H:%M:%S') + str(error))
+        sys.exit(-1)
 
 
 if __name__ == '__main__':
@@ -124,7 +134,7 @@ if __name__ == '__main__':
     currentTime = datetime.now()
     logger.write(datetime.strftime(currentTime, '%Y-%m-%d %H:%M:%S') + ' - Starting uploads...\n')
 
-    maskinToken = maskinporttokenpostrequest()  # request Maskinporten token
+    maskinToken = maskinporttokenpostrequest(logger, currentTime)  # request Maskinporten token
 
     if isinstance(maskinToken, list):  # failed to get token due to HTTP error
         logger.write(datetime.strftime(currentTime, '%Y-%m-%d %H:%M:%S') +
@@ -153,7 +163,7 @@ if __name__ == '__main__':
 
                             # attempt initial post request, get response as an object for further handling
                             response = apimoduluspostrequest(maskinToken['access_token'],
-                                                             document, str(dirs.name), str(file.name))
+                                                             document, str(dirs.name), str(file.name), logger, currentTime)
 
                             # handle the api response here
                             if response['code'] == '204':  # log success, move to finished
@@ -167,9 +177,9 @@ if __name__ == '__main__':
                                              ' - ' + str(file.name) + ' failed with error: ' + str(response) + '\n')
 
                             elif response['code'] == '403':  # log invalid token, get new token and try again
-                                maskinToken = maskinporttokenpostrequest()
+                                maskinToken = maskinporttokenpostrequest(logger, currentTime)
                                 nextResponse = apimoduluspostrequest(maskinToken['access_token'],
-                                                                     document, str(dirs.name), str(file.name))
+                                                                     document, str(dirs.name), str(file.name), logger, currentTime)
                                 logger.write(datetime.strftime(currentTime, '%Y-%m-%d %H:%M:%S') +
                                              ' - Maskinporten token expired, retrying...\n')
 
