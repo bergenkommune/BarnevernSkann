@@ -23,6 +23,7 @@ import base64
 import shutil
 from datetime import datetime, timezone, timedelta
 
+version = 'BarnevernSkann v1.0.4'
 configFile = open('config.json', 'r')  # get config
 config = json.loads(configFile.read())
 
@@ -74,7 +75,7 @@ def maskinporttokenpostrequest(logFile, timeStamp):  # creates JWT and requests 
         session = requests.Session()  # new requests session
 
         r = session.post(str(config['maskinportenUrl']) + 'token',  # post request to Maskinporten
-                         headers={'content-type': 'application/x-www-form-urlencoded'},
+                         headers={'content-type': 'application/x-www-form-urlencoded', 'user-agent': version},
                          data=('grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=' + str(token)))
         r.close()
 
@@ -92,12 +93,12 @@ def apimoduluspostrequest(token, doc, district, fileName, logFile, timeStamp):  
     if userformatcheck(fileName[0:5]):  # if username fits Bergen format, change to whatever format you use
         request_body = {'title': 'Skannet ' + str(fileName), 'unit': district, 'note': 'Skannet dokument',
                        'scannedBy': fileName[0:5], 'documents': doc}
-        header = {'user-agent': 'BarnevernSkann/1.0.4', 'Accept': 'application/json',
+        header = {'user-agent': version, 'Accept': 'application/json',
                   'Authorization': f'Bearer {token}'}
     else:  # else unknown user
         request_body = {'title': 'Skannet ' + str(fileName), 'unit': district, 'note': 'Skannet dokument',
                        'scannedBy': 'Ukjent', 'documents': doc}
-        header = {'user-agent': 'BarnevernSkann/1.0.4', 'Accept': 'application/json',
+        header = {'user-agent': version, 'Accept': 'application/json',
                   'Authorization': f'Bearer {token}'}
 
     try:
