@@ -23,7 +23,7 @@ import base64
 import shutil
 from datetime import datetime, timezone, timedelta
 
-version = 'BarnevernSkann v1.0.4'
+version = 'BarnevernSkann v1.0.6'
 configFile = open('config.json', 'r')  # get config
 config = json.loads(configFile.read())
 
@@ -79,10 +79,7 @@ def maskinporttokenpostrequest(logFile, timeStamp):  # creates JWT and requests 
                          data=('grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=' + str(token)))
         r.close()
 
-        if r.status_code == 200:  # success, return answer
-            return r.json()
-        else:  # return response and json content as list for error handling
-            return [r.status_code, r.json()]
+        return [r.status_code, r.json()]  # return response and json content
 
     except Exception as error:
         logFile.write(datetime.strftime(timeStamp, '%Y-%m-%d %H:%M:%S') + str(error))
@@ -92,12 +89,12 @@ def maskinporttokenpostrequest(logFile, timeStamp):  # creates JWT and requests 
 def apimoduluspostrequest(token, doc, district, fileName, logFile, timeStamp):  # push data to api with post-request
     if userformatcheck(fileName[0:5]):  # if username fits Bergen format, change to whatever format you use
         request_body = {'title': 'Skannet ' + str(fileName), 'unit': district, 'note': 'Skannet dokument',
-                       'scannedBy': fileName[0:5], 'documents': doc}
+                        'scannedBy': fileName[0:5], 'documents': doc}
         header = {'user-agent': version, 'Accept': 'application/json',
                   'Authorization': f'Bearer {token}'}
     else:  # else unknown user
         request_body = {'title': 'Skannet ' + str(fileName), 'unit': district, 'note': 'Skannet dokument',
-                       'scannedBy': 'Ukjent', 'documents': doc}
+                        'scannedBy': 'Ukjent', 'documents': doc}
         header = {'user-agent': version, 'Accept': 'application/json',
                   'Authorization': f'Bearer {token}'}
 
@@ -137,13 +134,7 @@ if __name__ == '__main__':
 
     maskinToken = maskinporttokenpostrequest(logger, currentTime)  # request Maskinporten token
 
-    if isinstance(maskinToken, list):  # failed to get token due to HTTP error
-        logger.write(datetime.strftime(currentTime, '%Y-%m-%d %H:%M:%S') +
-                     ' - Maskinporten token request failed with error: ' + str(maskinToken) + '\n')
-        logger.close()
-        sys.exit(-1)  # exit with error code, no point in trying if token can't be requested
-
-    else:  # working token received, going through directories and sending files
+    if maskinToken[0] == 200:  # working token received, going through directories and sending files
         for dirs in os.scandir(workingDirectory):
 
             # making sure we don't upload files from Failed, Finished and Logs directories
@@ -163,8 +154,9 @@ if __name__ == '__main__':
                                  'file': base64.b64encode(yay).decode()}]  # only PDFs are accepted, b64 encode the file
 
                             # attempt initial post request, get response as an object for further handling
-                            response = apimoduluspostrequest(maskinToken['access_token'],
-                                                             document, str(dirs.name), str(file.name), logger, currentTime)
+                            response = apimoduluspostrequest(maskinToken[1]['access_token'],
+                                                             document, str(dirs.name), str(file.name), logger,
+                                                             currentTime)
 
                             # handle the api response here
                             if response['code'] == '204':  # log success, move to finished
@@ -179,8 +171,9 @@ if __name__ == '__main__':
 
                             elif response['code'] == '403':  # log invalid token, get new token and try again
                                 maskinToken = maskinporttokenpostrequest(logger, currentTime)
-                                nextResponse = apimoduluspostrequest(maskinToken['access_token'],
-                                                                     document, str(dirs.name), str(file.name), logger, currentTime)
+                                nextResponse = apimoduluspostrequest(maskinToken[1]['access_token'],
+                                                                     document, str(dirs.name), str(file.name), logger,
+                                                                     currentTime)
                                 logger.write(datetime.strftime(currentTime, '%Y-%m-%d %H:%M:%S') +
                                              ' - Maskinporten token expired, retrying...\n')
 
@@ -208,3 +201,9 @@ if __name__ == '__main__':
         logger.write(datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S') + ' - Uploads done!\n')
         logger.close()
         sys.exit(0)
+
+    else:  # failed to get token due to HTTP error
+        logger.write(datetime.strftime(currentTime, '%Y-%m-%d %H:%M:%S') +
+                     ' - Maskinporten token request failed with error: ' + str(maskinToken) + '\n')
+        logger.close()
+        sys.exit(-1)  # exit with error code, no point in trying if token can't be requested
